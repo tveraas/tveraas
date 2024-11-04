@@ -1,1 +1,1 @@
-print("banana de pijamas")
+print("banan")
