@@ -12,7 +12,7 @@ bloco = 64
 # Definindo o tamanho da janela
 janela = pygame.display.set_mode((1024, 768))
 pygame.display.set_caption("Jogo da cobrinha")
-maca = pygame.image.load('')
+maca = pygame.image.load('images/apple.jpg')
 # Definindo as cores dos tiles
 tile_parede = pygame.Surface((bloco, bloco))
 tile_parede.fill((89, 138, 51))
@@ -38,7 +38,8 @@ mapa = [
     [1, 3, 2, 3, 2, 3, 2, 3, 2, 3, 2, 3, 2, 3, 2, 1],
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
 ]
-
+posicao_maca_x = [64,128,192,256,320,384,448,512,576,640,704,768,832,896]
+posicao_maca_y = [64,128,192,256,320,384,448,512,576,640]
 # Função para desenhar o mapa na janela
 def desenha_mapa():
     for i in range(len(mapa)):
