@@ -3,8 +3,8 @@ import random
 pygame.init()
 
 # Definindo as variáveis iniciais
-x = 96
-y = 96
+x = 64
+y = 64
 velocidade = 64
 direcao = "PARADO"
 # Tamanho do bloco (tile)
@@ -69,6 +69,7 @@ def desenha_mapa():
 posicao_maca_x,posicao_maca_y = posicao_random(lista_maca_x,lista_maca_y)
 # Loop principal do jogo
 janela_aberta = True
+corpo_cobra = [(x, y)]
 while janela_aberta:
     pygame.time.delay(200)
 
@@ -110,15 +111,29 @@ while janela_aberta:
     # Desenhar o mapa
     desenha_mapa()
     janela.blit(maca,(posicao_maca_x,posicao_maca_y))
-    if jogador_pega_maca(x-32,y-32,posicao_maca_x,posicao_maca_y):
+    if jogador_pega_maca(x,y,posicao_maca_x,posicao_maca_y):
         posicao_maca_x,posicao_maca_y = posicao_random(lista_maca_x,lista_maca_y)
         contador_pontos += 1
     # Desenhar o "personagem" (vamos usar um círculo para o personagem por enquanto)
-    pygame.draw.circle(janela, (255, 0, 0), (x, y), 16)
-    
-    for i in range(contador_pontos):
-        offset = (i + 1)  # Distância entre segmentos
-        pygame.draw.circle(janela, (255, 0, 0), (x + offset, y + offset), 16)
+    # Inicialização do corpo da cobra com a cabeça na posição inicial
+      # Lista que armazena as posições dos segmentos da cobra
+
+    # Verificação de colisão com a maçã
+    if jogador_pega_maca(x, y, posicao_maca_x, posicao_maca_y):
+        posicao_maca_x, posicao_maca_y = posicao_random(lista_maca_x, lista_maca_y)
+        contador_pontos += 1  # Aumenta o contador de pontos, indicando que a cobra deve crescer
+
+    # Insere a nova posição da cabeça no início da lista do corpo da cobra
+    corpo_cobra.insert(0, (x, y))
+
+    # Remove o último segmento da cobra apenas se o comprimento atual for menor que o contador de pontos
+    if len(corpo_cobra) > contador_pontos:
+        corpo_cobra.pop()  # Remove o último segmento para simular o movimento
+
+    # Desenha cada segmento da cobra na tela
+    for segmento in corpo_cobra:
+        pygame.draw.rect(janela, (255, 0, 0), (segmento[0], segmento[1], bloco, bloco))
+
     # Atualiza a tela
     pygame.display.update()
 
