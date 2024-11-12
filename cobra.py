@@ -6,7 +6,7 @@ pygame.init()
 x = 96
 y = 96
 velocidade = 64
-
+direcao = "PARADO"
 # Tamanho do bloco (tile)
 bloco = 64
 
@@ -54,7 +54,8 @@ mapa = [
 lista_maca_x = [64,128,192,256,320,384,448,512,576,640,704,768,832,896]
 lista_maca_y = [64,128,192,256,320,384,448,512,576,640]
 
-
+contador_pontos = 0
+contador_tamanho = 0
 # Função para desenhar o mapa na janela
 def desenha_mapa():
     for i in range(len(mapa)):
@@ -69,27 +70,40 @@ posicao_maca_x,posicao_maca_y = posicao_random(lista_maca_x,lista_maca_y)
 # Loop principal do jogo
 janela_aberta = True
 while janela_aberta:
-    pygame.time.delay(50)
+    pygame.time.delay(200)
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             janela_aberta = False
-
-    # Controle de movimento do personagem
-    comandos = pygame.key.get_pressed()
-    if comandos[pygame.K_UP]:
-        if y != 96:
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_UP and direcao != 'BAIXO':
+                direcao = 'CIMA'
+            elif event.key == pygame.K_DOWN and direcao != 'CIMA':
+                direcao = 'BAIXO'
+            elif event.key == pygame.K_LEFT and direcao != 'DIREITA':
+                direcao = 'ESQUERDA'
+            elif event.key == pygame.K_RIGHT and direcao != 'ESQUERDA':
+                direcao = 'DIREITA'
+    if direcao == 'CIMA':
+        if y > 96:  # Limite superior
             y -= velocidade
-    if comandos[pygame.K_DOWN]:
-        if y != 672:
+        else:
+            direcao = 'PARADO'  # Para ao bater na borda superior
+    elif direcao == 'BAIXO':
+        if y < 672:  # Limite inferior
             y += velocidade
-    if comandos[pygame.K_RIGHT]:
-        if x != 928:
-            x += velocidade
-    if comandos[pygame.K_LEFT]:
-        if x != 96:
+        else:
+            direcao = 'PARADO'  # Para ao bater na borda inferior
+    elif direcao == 'ESQUERDA':
+        if x > 96:  # Limite esquerdo
             x -= velocidade
-
+        else:
+            direcao = 'PARADO'  # Para ao bater na borda esquerda
+    elif direcao == 'DIREITA':
+        if x < 928:  # Limite direito
+            x += velocidade
+        else:
+            direcao = 'PARADO'  # Para ao bater na borda direita
     # Preencher o fundo da janela com uma cor (fundo preto)
     janela.fill((0, 0, 0))
 
@@ -98,9 +112,13 @@ while janela_aberta:
     janela.blit(maca,(posicao_maca_x,posicao_maca_y))
     if jogador_pega_maca(x-32,y-32,posicao_maca_x,posicao_maca_y):
         posicao_maca_x,posicao_maca_y = posicao_random(lista_maca_x,lista_maca_y)
+        contador_pontos += 1
     # Desenhar o "personagem" (vamos usar um círculo para o personagem por enquanto)
-    pygame.draw.circle(janela, (255, 0, 0), (x, y), 16)  # Personagem (círculo vermelho)
-
+    pygame.draw.circle(janela, (255, 0, 0), (x, y), 16)
+    
+    for i in range(contador_pontos):
+        offset = (i + 1)  # Distância entre segmentos
+        pygame.draw.circle(janela, (255, 0, 0), (x + offset, y + offset), 16)
     # Atualiza a tela
     pygame.display.update()
 
