@@ -12,7 +12,7 @@ bloco = 64
 # Definindo o tamanho da janela
 janela = pygame.display.set_mode((1024, 768))
 pygame.display.set_caption("Jogo da cobrinha")
-
+maca = pygame.image.load('')
 # Definindo as cores dos tiles
 tile_parede = pygame.Surface((bloco, bloco))
 tile_parede.fill((89, 138, 51))
@@ -62,13 +62,17 @@ while janela_aberta:
     # Controle de movimento do personagem
     comandos = pygame.key.get_pressed()
     if comandos[pygame.K_UP]:
-        y -= velocidade
+        if y != 96:
+            y -= velocidade
     if comandos[pygame.K_DOWN]:
-        y += velocidade
+        if y != 672:
+            y += velocidade
     if comandos[pygame.K_RIGHT]:
-        x += velocidade
+        if x != 928:
+            x += velocidade
     if comandos[pygame.K_LEFT]:
-        x -= velocidade
+        if x != 96:
+            x -= velocidade
 
     # Preencher o fundo da janela com uma cor (fundo preto)
     janela.fill((0, 0, 0))
