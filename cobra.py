@@ -1,4 +1,5 @@
 import pygame
+import random
 pygame.init()
 
 # Definindo as variáveis iniciais
@@ -12,7 +13,9 @@ bloco = 64
 # Definindo o tamanho da janela
 janela = pygame.display.set_mode((1024, 768))
 pygame.display.set_caption("Jogo da cobrinha")
-maca = pygame.image.load('images/apple.jpg')
+maca = pygame.image.load('images/apple.png')
+maca = pygame.transform.scale(maca, (64,64))
+
 # Definindo as cores dos tiles
 tile_parede = pygame.Surface((bloco, bloco))
 tile_parede.fill((89, 138, 51))
@@ -22,6 +25,16 @@ tile_verde_claro.fill((170, 215, 81))
 
 tile_verde_escuro = pygame.Surface((bloco, bloco))
 tile_verde_escuro.fill((157, 203, 69))
+
+def posicao_random(posicao_x:list,posicao_y:list):
+    posicao_maca_x = random.choice(posicao_x)
+    posicao_maca_y = random.choice(posicao_y)
+    return posicao_maca_x,posicao_maca_y
+
+def jogador_pega_maca(x, y, maca_x, maca_y):
+    if x == maca_x and y == maca_y:
+        return True
+    return False
 
 # Mapa do jogo (matriz de valores)
 mapa = [
@@ -38,8 +51,10 @@ mapa = [
     [1, 3, 2, 3, 2, 3, 2, 3, 2, 3, 2, 3, 2, 3, 2, 1],
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
 ]
-posicao_maca_x = [64,128,192,256,320,384,448,512,576,640,704,768,832,896]
-posicao_maca_y = [64,128,192,256,320,384,448,512,576,640]
+lista_maca_x = [64,128,192,256,320,384,448,512,576,640,704,768,832,896]
+lista_maca_y = [64,128,192,256,320,384,448,512,576,640]
+
+
 # Função para desenhar o mapa na janela
 def desenha_mapa():
     for i in range(len(mapa)):
@@ -50,7 +65,7 @@ def desenha_mapa():
                 janela.blit(tile_verde_claro, (j * bloco, i * bloco))
             elif mapa[i][j] == 3:
                 janela.blit(tile_verde_escuro, (j * bloco, i * bloco))
-
+posicao_maca_x,posicao_maca_y = posicao_random(lista_maca_x,lista_maca_y)
 # Loop principal do jogo
 janela_aberta = True
 while janela_aberta:
@@ -80,7 +95,9 @@ while janela_aberta:
 
     # Desenhar o mapa
     desenha_mapa()
-
+    janela.blit(maca,(posicao_maca_x,posicao_maca_y))
+    if jogador_pega_maca(x-32,y-32,posicao_maca_x,posicao_maca_y):
+        posicao_maca_x,posicao_maca_y = posicao_random(lista_maca_x,lista_maca_y)
     # Desenhar o "personagem" (vamos usar um círculo para o personagem por enquanto)
     pygame.draw.circle(janela, (255, 0, 0), (x, y), 16)  # Personagem (círculo vermelho)
 
