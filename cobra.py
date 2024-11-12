@@ -31,9 +31,10 @@ def posicao_random(posicao_x:list,posicao_y:list):
     posicao_maca_y = random.choice(posicao_y)
     return posicao_maca_x,posicao_maca_y
 
-def jogador_pega_maca(x, y, maca_x, maca_y):
-    if x == maca_x and y == maca_y:
-        return True
+def jogador_pega_maca(maca_x, maca_y,corpo_cobra):
+    for segmento in corpo_cobra:
+        if segmento == (maca_x, maca_y):  # Se a maçã está na mesma posição de um segmento
+            return True
     return False
 
 # Mapa do jogo (matriz de valores)
@@ -71,7 +72,7 @@ posicao_maca_x,posicao_maca_y = posicao_random(lista_maca_x,lista_maca_y)
 janela_aberta = True
 corpo_cobra = [(x, y)]
 while janela_aberta:
-    pygame.time.delay(200)
+    pygame.time.delay(150)
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -89,42 +90,58 @@ while janela_aberta:
         if y > 96:  # Limite superior
             y -= velocidade
         else:
-            direcao = 'PARADO'  # Para ao bater na borda superior
+            direcao = 'PARADO'
+            x, y = 64, 64  # Reseta a posição inicial
+            corpo_cobra = [(x, y)]  # Reseta o corpo da cobra
+            contador_pontos = 0  # Para ao bater na borda superior
     elif direcao == 'BAIXO':
-        if y < 672:  # Limite inferior
+        if y < 608:  # Limite inferior
             y += velocidade
         else:
-            direcao = 'PARADO'  # Para ao bater na borda inferior
+            direcao = 'PARADO'
+            x, y = 64, 64  # Reseta a posição inicial
+            corpo_cobra = [(x, y)]  # Reseta o corpo da cobra
+            contador_pontos = 0  # Para ao bater na borda inferior
     elif direcao == 'ESQUERDA':
         if x > 96:  # Limite esquerdo
             x -= velocidade
         else:
-            direcao = 'PARADO'  # Para ao bater na borda esquerda
+            direcao = 'PARADO'
+            x, y = 64, 64  # Reseta a posição inicial
+            corpo_cobra = [(x, y)]  # Reseta o corpo da cobra
+            contador_pontos = 0  # Para ao bater na borda esquerda
     elif direcao == 'DIREITA':
-        if x < 928:  # Limite direito
+        if x < 864:  # Limite direito
             x += velocidade
         else:
-            direcao = 'PARADO'  # Para ao bater na borda direita
+            direcao = 'PARADO'
+            x, y = 64, 64  # Reseta a posição inicial
+            corpo_cobra = [(x, y)]  # Reseta o corpo da cobra
+            contador_pontos = 0  # Para ao bater na borda direita
     # Preencher o fundo da janela com uma cor (fundo preto)
     janela.fill((0, 0, 0))
-
+    if corpo_cobra[0] in corpo_cobra[1:]:
+        # Se a cabeça colidir com qualquer outro segmento, reinicia a fase
+        x, y = 64, 64  # Reseta a posição inicial
+        corpo_cobra = [(x, y)]  # Reseta o corpo da cobra
+        contador_pontos = 0  # Reseta o contador de pontos
+        continue
     # Desenhar o mapa
     desenha_mapa()
     janela.blit(maca,(posicao_maca_x,posicao_maca_y))
-    if jogador_pega_maca(x,y,posicao_maca_x,posicao_maca_y):
+    if jogador_pega_maca(posicao_maca_x,posicao_maca_y,corpo_cobra):
         posicao_maca_x,posicao_maca_y = posicao_random(lista_maca_x,lista_maca_y)
         contador_pontos += 1
+        corpo_cobra.append(corpo_cobra[-1]) 
     # Desenhar o "personagem" (vamos usar um círculo para o personagem por enquanto)
     # Inicialização do corpo da cobra com a cabeça na posição inicial
       # Lista que armazena as posições dos segmentos da cobra
 
     # Verificação de colisão com a maçã
-    if jogador_pega_maca(x, y, posicao_maca_x, posicao_maca_y):
-        posicao_maca_x, posicao_maca_y = posicao_random(lista_maca_x, lista_maca_y)
-        contador_pontos += 1  # Aumenta o contador de pontos, indicando que a cobra deve crescer
-
+    
     # Insere a nova posição da cabeça no início da lista do corpo da cobra
     corpo_cobra.insert(0, (x, y))
+    
 
     # Remove o último segmento da cobra apenas se o comprimento atual for menor que o contador de pontos
     if len(corpo_cobra) > contador_pontos:
