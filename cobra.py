@@ -131,9 +131,9 @@ def desenha_cobra(corpo_cobra, direcao):
             
         else:  # Corpo
             if corpo_cobra[i - 1][0] == segmento_x and corpo_cobra[i + 1][0] == segmento_x:
-                janela.blit(corpo_vertical, (segmento_x, segmento_y))
+                janela.blit(corpo_vertical, (segmento_x+16, segmento_y))
             else:
-                janela.blit(corpo_horizontal, (segmento_x, segmento_y))
+                janela.blit(corpo_horizontal, (segmento_x, segmento_y+16))
 
 # Posicionar a maçã
 lista_maca_x = [64, 128, 192, 256, 320, 384, 448, 512, 576, 640, 704, 768, 832, 896]
