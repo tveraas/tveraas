@@ -60,6 +60,19 @@ cauda_direita = pygame.transform.scale(cauda_direita, (64, 32))
 cauda_esquerda = pygame.image.load('images/tail_right.png')
 cauda_esquerda = pygame.transform.scale(cauda_esquerda, (64, 32))
 
+# Curvas
+curva_esquerda_cima = pygame.image.load('images/curve_left_up.png')
+curva_esquerda_cima = pygame.transform.scale(curva_esquerda_cima, (48,48))
+
+curva_esquerda_embaixo = pygame.image.load('images/curve_left_down.png')
+curva_esquerda_embaixo = pygame.transform.scale(curva_esquerda_embaixo, (48,48))
+
+curva_direita_cima = pygame.image.load('images/curve_right_up.png')
+curva_direita_cima = pygame.transform.scale(curva_direita_cima, (48,48))
+
+curva_direita_baixo = pygame.image.load('images/curve_right_down.png')
+curva_direita_baixo = pygame.transform.scale(curva_direita_baixo, (56,56))
+
 
 # Função para definir posição aleatória da maçã
 def posicao_random(posicao_x: list, posicao_y: list):
@@ -132,17 +145,76 @@ def desenha_cobra(corpo_cobra, direcao):
         else:  # Corpo
             if corpo_cobra[i - 1][0] == segmento_x and corpo_cobra[i + 1][0] == segmento_x:
                 janela.blit(corpo_vertical, (segmento_x+16, segmento_y))
-            else:
+            elif corpo_cobra[i - 1][1] == segmento_y and corpo_cobra[i + 1][1] == segmento_y:
                 janela.blit(corpo_horizontal, (segmento_x, segmento_y+16))
+            else:
+                if corpo_cobra[i - 1][0] < segmento_x and corpo_cobra[i + 1][1] > segmento_y:
+                    janela.blit(curva_esquerda_cima, (segmento_x, segmento_y))
+                elif corpo_cobra[i - 1][0] < segmento_x and corpo_cobra[i + 1][1] < segmento_y:
+                    janela.blit(curva_esquerda_embaixo, (segmento_x, segmento_y))
+                elif corpo_cobra[i - 1][0] > segmento_x and corpo_cobra[i + 1][1] > segmento_y:
+                    janela.blit(curva_direita_cima, (segmento_x, segmento_y))
+                elif corpo_cobra[i - 1][0] > segmento_x and corpo_cobra[i + 1][1] < segmento_y:
+                    janela.blit(curva_direita_baixo, (segmento_x, segmento_y))
+
+def menu_inicial():
+    font = pygame.font.SysFont("Arial", 40)
+    titulo = font.render("Jogo da Cobrinha", True, (255, 255, 255))
+    texto_jogar = font.render("Pressione 'ENTER' para Jogar", True, (255, 255, 255))
+    texto_sair = font.render("Pressione 'ESC' para Sair", True, (255, 255, 255))
+
+    janela.fill((0, 0, 0))  # Fundo preto
+    janela.blit(titulo, (350, 150))
+    janela.blit(texto_jogar, (300, 250))
+    janela.blit(texto_sair, (300, 300))
+    pygame.display.update()
+
+    # Lógica para aguardar uma opção do usuário
+    esperando = True
+    while esperando:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                return False
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_RETURN:  # Pressionou ENTER
+                    return True
+                elif event.key == pygame.K_ESCAPE:  # Pressionou ESC
+                    return False
+
+# Função para verificar se a cabeça da cobra colidiu com o corpo
+def colisao_com_o_corpo(corpo_cobra):
+    # Verifica se a posição da cabeça coincide com qualquer outro segmento do corpo
+    for segmento in corpo_cobra[1:]:  # Ignora o primeiro segmento (a cabeça)
+        if corpo_cobra[0] == segmento:
+            return True  # Colisão detectada
+    return False  # Nenhuma colisão
+
+# Função para verificar se a cabeça da cobra colidiu com as paredes
+def colisao_com_parede(corpo_cobra):
+    # Posição da cabeça (primeiro segmento)
+    cabeca_x, cabeca_y = corpo_cobra[0]
+    
+    # Verifica se a cabeça ultrapassa as bordas do mapa
+    if cabeca_x < 64 or cabeca_x > 896 or cabeca_y < 64 or cabeca_y > 640:
+        return True  # Colisão com a parede
+    return False  # Nenhuma colisão com a parede
+
+def reiniciar_jogo():
+    global corpo_cobra, direcao, contador_pontos, posicao_maca_x, posicao_maca_y
+    corpo_cobra = [(64, 64)]  # Reinicia a cobra com 1 segmento
+    direcao = "PARADO"  # Reseta a direção
+    contador_pontos = 0  # Reseta o contador de pontos
+    posicao_maca_x, posicao_maca_y = posicao_random(lista_maca_x, lista_maca_y)  # Posição aleatória da maçã
+
 
 # Posicionar a maçã
 lista_maca_x = [64, 128, 192, 256, 320, 384, 448, 512, 576, 640, 704, 768, 832, 896]
 lista_maca_y = [64, 128, 192, 256, 320, 384, 448, 512, 576, 640]
 posicao_maca_x, posicao_maca_y = posicao_random(lista_maca_x, lista_maca_y)
 
-# Loop principal do jogo
+
 janela_aberta = True
-corpo_cobra = [(x, y)]
+corpo_cobra = [(64, 64)]  # A cobra começa com 1 segmento (cabeça)
 contador_pontos = 0
 
 while janela_aberta:
@@ -162,33 +234,38 @@ while janela_aberta:
             elif event.key == pygame.K_RIGHT and direcao != 'ESQUERDA':
                 direcao = 'DIREITA'
 
-    # Atualizar a posição da cabeça somente se a direção for diferente de "PARADO"
-    if direcao != "PARADO":
-        if direcao == 'CIMA':
-            novo_segmento = (corpo_cobra[0][0], corpo_cobra[0][1] - velocidade)
-        elif direcao == 'BAIXO':
-            novo_segmento = (corpo_cobra[0][0], corpo_cobra[0][1] + velocidade)
-        elif direcao == 'ESQUERDA':
-            novo_segmento = (corpo_cobra[0][0] - velocidade, corpo_cobra[0][1])
-        elif direcao == 'DIREITA':
-            novo_segmento = (corpo_cobra[0][0] + velocidade, corpo_cobra[0][1])
+    # Garantir que a lista corpo_cobra não está vazia
+    if corpo_cobra:
+        # Atualizar a posição da cabeça
+        if direcao != "PARADO":
+            if direcao == 'CIMA':
+                novo_segmento = (corpo_cobra[0][0], corpo_cobra[0][1] - velocidade)
+            elif direcao == 'BAIXO':
+                novo_segmento = (corpo_cobra[0][0], corpo_cobra[0][1] + velocidade)
+            elif direcao == 'ESQUERDA':
+                novo_segmento = (corpo_cobra[0][0] - velocidade, corpo_cobra[0][1])
+            elif direcao == 'DIREITA':
+                novo_segmento = (corpo_cobra[0][0] + velocidade, corpo_cobra[0][1])
 
-        # Insere o novo segmento da cabeça
-        corpo_cobra.insert(0, novo_segmento)
+            # Insere o novo segmento da cabeça
+            corpo_cobra.insert(0, novo_segmento)
 
-        # Checa se pegou a maçã
-        if jogador_pega_maca(posicao_maca_x, posicao_maca_y, corpo_cobra):
-            posicao_maca_x, posicao_maca_y = posicao_random(lista_maca_x, lista_maca_y)
-            contador_pontos += 1
-        else:
-            corpo_cobra.pop()  # Remove o último segmento para simular o movimento
+
+            # Checa se pegou a maçã
+            if jogador_pega_maca(posicao_maca_x, posicao_maca_y, corpo_cobra):
+                posicao_maca_x, posicao_maca_y = posicao_random(lista_maca_x, lista_maca_y)
+                contador_pontos += 1
+            else:
+                corpo_cobra.pop()  # Remove o último segmento para simular o movimento
 
     # Desenha o mapa e a cobra
     janela.fill((0, 0, 0))
     desenha_mapa()
     janela.blit(maca, (posicao_maca_x, posicao_maca_y))
     desenha_cobra(corpo_cobra, direcao)
+    print(corpo_cobra)
     pygame.display.update()
-
+    if colisao_com_o_corpo(corpo_cobra) or colisao_com_parede(corpo_cobra):
+        reiniciar_jogo()
 
 pygame.quit()
