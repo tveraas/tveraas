@@ -190,7 +190,6 @@ def menu_inicial():
     janela.blit(texto_sair, (300, 300))
     pygame.display.update()
 
-    # Lógica para aguardar uma opção do usuário
     esperando = True
     while esperando:
         for event in pygame.event.get():
@@ -234,13 +233,13 @@ lista_maca_y = [64, 128, 192, 256, 320, 384, 448, 512, 576, 640]
 posicao_maca_x, posicao_maca_y = posicao_random(lista_maca_x, lista_maca_y)
 
 
-janela_aberta = True
+janela_aberta = menu_inicial()
 corpo_cobra = [(64, 64)]  # A cobra começa com 1 segmento (cabeça)
 contador_pontos = 0
-
+font = pygame.font.Font(None, 50)
+estado_do_jogo = "menu"
 while janela_aberta:
     pygame.time.delay(150)
-
     # Eventos do teclado
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -254,6 +253,10 @@ while janela_aberta:
                 direcao = 'ESQUERDA'
             elif event.key == pygame.K_RIGHT and direcao != 'ESQUERDA':
                 direcao = 'DIREITA'
+            elif event.key == pygame.K_ESCAPE:
+                reiniciar_jogo()
+                menu_inicial()
+                
 
     # Garantir que a lista corpo_cobra não está vazia
     if corpo_cobra:
@@ -284,7 +287,9 @@ while janela_aberta:
     desenha_mapa()
     janela.blit(maca, (posicao_maca_x, posicao_maca_y))
     desenha_cobra(corpo_cobra, direcao)
-    print(corpo_cobra)
+    score_text = font.render(f"Pontos: {contador_pontos}", True,(0,0,0))
+    # Desenhando o texto na tela
+    janela.blit(score_text, (10, 10))
     pygame.display.update()
     if colisao_com_o_corpo(corpo_cobra) or colisao_com_parede(corpo_cobra):
         reiniciar_jogo()
