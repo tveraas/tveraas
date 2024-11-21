@@ -71,7 +71,7 @@ curva_direita_cima = pygame.image.load('images/curve_right_up.png')
 curva_direita_cima = pygame.transform.scale(curva_direita_cima, (48,48))
 
 curva_direita_baixo = pygame.image.load('images/curve_right_down.png')
-curva_direita_baixo = pygame.transform.scale(curva_direita_baixo, (56,56))
+curva_direita_baixo = pygame.transform.scale(curva_direita_baixo, (48,48))
 
 
 # Função para definir posição aleatória da maçã
@@ -133,6 +133,7 @@ def desenha_cobra(corpo_cobra, direcao):
                 cauda_direita if corpo_cobra[-2][0] < segmento_x else
                 cauda_esquerda
             )
+            
             if cauda_img == cauda_cima:
                 janela.blit(cauda_img, (segmento_x+16, segmento_y))
             if cauda_img == cauda_baixo:
@@ -143,19 +144,39 @@ def desenha_cobra(corpo_cobra, direcao):
                 janela.blit(cauda_img, (segmento_x, segmento_y+16))
             
         else:  # Corpo
-            if corpo_cobra[i - 1][0] == segmento_x and corpo_cobra[i + 1][0] == segmento_x:
+            anterior_x, anterior_y = corpo_cobra[i - 1]
+            proximo_x, proximo_y = corpo_cobra[i + 1]
+
+            if anterior_x == segmento_x and proximo_x == segmento_x:  # Movimento vertical
                 janela.blit(corpo_vertical, (segmento_x+16, segmento_y))
-            elif corpo_cobra[i - 1][1] == segmento_y and corpo_cobra[i + 1][1] == segmento_y:
+            elif anterior_y == segmento_y and proximo_y == segmento_y:  # Movimento horizontal
                 janela.blit(corpo_horizontal, (segmento_x, segmento_y+16))
-            else:
-                if corpo_cobra[i - 1][0] < segmento_x and corpo_cobra[i + 1][1] > segmento_y:
-                    janela.blit(curva_esquerda_cima, (segmento_x, segmento_y))
-                elif corpo_cobra[i - 1][0] < segmento_x and corpo_cobra[i + 1][1] < segmento_y:
+            else:  # Curvas
+                if anterior_x < segmento_x and proximo_y > segmento_y:  # Esquerda para cima
+                    janela.blit(curva_esquerda_cima, (segmento_x, segmento_y+16))
+                    #corrigido
+                elif anterior_x < segmento_x and proximo_y < segmento_y:  # Esquerda para baixo
                     janela.blit(curva_esquerda_embaixo, (segmento_x, segmento_y))
-                elif corpo_cobra[i - 1][0] > segmento_x and corpo_cobra[i + 1][1] > segmento_y:
-                    janela.blit(curva_direita_cima, (segmento_x, segmento_y))
-                elif corpo_cobra[i - 1][0] > segmento_x and corpo_cobra[i + 1][1] < segmento_y:
-                    janela.blit(curva_direita_baixo, (segmento_x, segmento_y))
+                    #100% certo
+                elif anterior_x > segmento_x and proximo_y > segmento_y:  # Direita para cima
+                    janela.blit(curva_direita_cima, (segmento_x+16, segmento_y+16))
+                    #corrigido
+                elif anterior_x > segmento_x and proximo_y < segmento_y:  # Direita para baixo
+                    janela.blit(curva_direita_baixo, (segmento_x+16, segmento_y))
+                    #corrigido
+                elif anterior_y < segmento_y and proximo_x > segmento_x:  # Cima para direita
+                    janela.blit(curva_direita_baixo, (segmento_x+16, segmento_y))
+                    #corrigido
+                elif anterior_y < segmento_y and proximo_x < segmento_x:  # Cima para esquerda
+                    janela.blit(curva_esquerda_embaixo, (segmento_x, segmento_y))
+                    #corrigido
+                elif anterior_y > segmento_y and proximo_x > segmento_x:  # Baixo para direita
+                    janela.blit(curva_direita_cima, (segmento_x+16, segmento_y+16))
+                    #corrigido
+                elif anterior_y > segmento_y and proximo_x < segmento_x:  # Baixo para esquerda
+                    janela.blit(curva_esquerda_cima, (segmento_x, segmento_y+16))
+                    #corrigido
+
 
 def menu_inicial():
     font = pygame.font.SysFont("Arial", 40)
