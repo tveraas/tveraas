@@ -126,6 +126,8 @@ def desenha_cobra(corpo_cobra, direcao):
                 janela.blit(cabeça_direita, (segmento_x, segmento_y))
             elif direcao == 'ESQUERDA':
                 janela.blit(cabeça_esquerda, (segmento_x, segmento_y))
+            else:  # Direção "PARADO"
+                janela.blit(cabeça_baixo, (segmento_x, segmento_y))
         elif i == len(corpo_cobra) - 1:  # Cauda
             cauda_img = (
                 cauda_cima if corpo_cobra[-2][1] > segmento_y else
@@ -198,6 +200,7 @@ def menu_inicial():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RETURN:  # Pressionou ENTER
                     return True
+                    
                 elif event.key == pygame.K_ESCAPE:  # Pressionou ESC
                     return False
 
@@ -221,7 +224,7 @@ def colisao_com_parede(corpo_cobra):
 
 def reiniciar_jogo():
     global corpo_cobra, direcao, contador_pontos, posicao_maca_x, posicao_maca_y
-    corpo_cobra = [(64, 64)]  # Reinicia a cobra com 1 segmento
+    corpo_cobra = [(512, 384), (512, 320), (512, 256)]  # Reinicia a cobra com 1 segmento
     direcao = "PARADO"  # Reseta a direção
     contador_pontos = 0  # Reseta o contador de pontos
     posicao_maca_x, posicao_maca_y = posicao_random(lista_maca_x, lista_maca_y)  # Posição aleatória da maçã
@@ -234,12 +237,14 @@ posicao_maca_x, posicao_maca_y = posicao_random(lista_maca_x, lista_maca_y)
 
 
 janela_aberta = menu_inicial()
-corpo_cobra = [(64, 64)]  # A cobra começa com 1 segmento (cabeça)
+corpo_cobra = [(512, 384), (512, 320), (512, 256)]  # A cobra começa com 3 segmento (cabeça)
 contador_pontos = 0
 font = pygame.font.Font(None, 50)
 estado_do_jogo = "menu"
+clock = pygame.time.Clock()
+fps = 5
 while janela_aberta:
-    pygame.time.delay(150)
+    clock.tick(fps)
     # Eventos do teclado
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -291,7 +296,7 @@ while janela_aberta:
     # Desenhando o texto na tela
     janela.blit(score_text, (10, 10))
     pygame.display.update()
-    if colisao_com_o_corpo(corpo_cobra) or colisao_com_parede(corpo_cobra):
+    if direcao != "PARADO" and (colisao_com_o_corpo(corpo_cobra) or colisao_com_parede(corpo_cobra)):
         reiniciar_jogo()
 
 pygame.quit()
